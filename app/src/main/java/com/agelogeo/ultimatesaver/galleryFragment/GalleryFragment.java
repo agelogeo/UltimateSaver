@@ -1,4 +1,4 @@
-package com.agelogeo.ultimatesaver;
+package com.agelogeo.ultimatesaver.galleryFragment;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
@@ -12,7 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class MainFragment extends Fragment {
+import com.agelogeo.ultimatesaver.MainViewModel;
+import com.agelogeo.ultimatesaver.R;
+
+public class GalleryFragment extends Fragment {
 
     private MainViewModel mViewModel;
     private TextView mTextMessage;
@@ -23,22 +26,19 @@ public class MainFragment extends Fragment {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    mTextMessage.setText("1");
+                case R.id.navigation_images:
+                    mTextMessage.setText("Images");
                     return true;
-                case R.id.navigation_dashboard:
-                    mTextMessage.setText("2");
-                    return true;
-                case R.id.navigation_notifications:
-                    mTextMessage.setText("3");
+                case R.id.navigation_videos:
+                    mTextMessage.setText("Videos");
                     return true;
             }
             return false;
         }
     };
 
-    public static MainFragment newInstance() {
-        return new MainFragment();
+    public static GalleryFragment newInstance() {
+        return new GalleryFragment();
     }
 
     @Override
