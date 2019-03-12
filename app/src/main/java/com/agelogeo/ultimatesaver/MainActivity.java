@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity
         ActionBar actionBar = getSupportActionBar();
         try{
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-            actionBar.setCustomView(R.layout.title_bar);
 
         }catch (Exception e){
             e.printStackTrace();
