@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.agelogeo.ultimatesaver.downloadFragment.downloadFragment;
 import com.agelogeo.ultimatesaver.galleryFragment.GalleryFragment;
 
 public class MainActivity extends AppCompatActivity
@@ -88,16 +89,20 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        Fragment fragment = null;
+
         if (id == R.id.nav_gallery) {
-            fragment = new GalleryFragment();
+            Fragment fragment = new GalleryFragment();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.setCustomAnimations(R.anim.nav_enter,R.anim.nav_exit);
             transaction.replace(R.id.mainConstraint,fragment);
             transaction.commit();
             // Handle the camera action
         } else if (id == R.id.nav_home) {
-
+            Fragment fragment = new downloadFragment();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.setCustomAnimations(R.anim.nav_enter,R.anim.nav_exit);
+            transaction.replace(R.id.mainConstraint,fragment);
+            transaction.commit();
         }  else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
