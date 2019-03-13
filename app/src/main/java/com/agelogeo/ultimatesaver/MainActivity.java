@@ -1,5 +1,6 @@
 package com.agelogeo.ultimatesaver;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,10 +10,12 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.agelogeo.ultimatesaver.downloadFragment.downloadFragment;
@@ -45,6 +48,7 @@ public class MainActivity extends AppCompatActivity
         }catch (Exception e){
             e.printStackTrace();
         }
+
     }
 
     @Override
@@ -105,8 +109,21 @@ public class MainActivity extends AppCompatActivity
             transaction.commit();
         }  else if (id == R.id.nav_share) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.about) {
 
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setView(R.layout.about_dialog)
+                    .setPositiveButton("OK",null)
+                    .setNeutralButton("Contact Us", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    })
+                    .show();
+
+            TextView text = alertDialog.findViewById(R.id.version);
+            text.setText(" V : "+BuildConfig.VERSION_NAME);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
