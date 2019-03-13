@@ -9,7 +9,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -17,7 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.agelogeo.ultimatesaver.ImageAdapter;
 import com.agelogeo.ultimatesaver.R;
@@ -79,6 +78,7 @@ public class downloadFragment extends Fragment {
             if (data != null && description != null && description.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))
                 return String.valueOf(data.getItemAt(0).getText());
         }
+        Toast.makeText(getContext(),"Please copy a valid link.",Toast.LENGTH_SHORT).show();
         return null;
     }
 
@@ -130,6 +130,7 @@ public class downloadFragment extends Fragment {
                 imageTask.execute(link);
             }
         }catch (Exception e){
+            Toast.makeText(getContext(),"Error with your link.",Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
     }
