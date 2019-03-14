@@ -19,6 +19,7 @@ import android.widget.GridView;
 import android.widget.Toast;
 
 import com.agelogeo.ultimatesaver.ImageAdapter;
+import com.agelogeo.ultimatesaver.Download;
 import com.agelogeo.ultimatesaver.R;
 
 import org.json.JSONArray;
@@ -39,6 +40,8 @@ public class downloadFragment extends Fragment {
     ArrayList<Bitmap> bitmapList;
     View v;
 
+
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -53,7 +56,7 @@ public class downloadFragment extends Fragment {
             public void onClick(View v) {
                 link = readFromClipboard();
                 Log.i("URL",link);
-                fetchPhoto();
+                openLink();
             }
         });
 
@@ -63,79 +66,7 @@ public class downloadFragment extends Fragment {
         return v;
     }
 
-    public void pasteButton(View view){
-        link = readFromClipboard();
-        fetchPhoto();
-        Log.i("URL",link);
-        //urlText.setText(link);
-    }
-
-    public String readFromClipboard() {
-        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-        if (clipboard.hasPrimaryClip()) {
-            android.content.ClipDescription description = clipboard.getPrimaryClipDescription();
-            android.content.ClipData data = clipboard.getPrimaryClip();
-            if (data != null && description != null && description.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))
-                return String.valueOf(data.getItemAt(0).getText());
-        }
-        Toast.makeText(getContext(),"Please copy a valid link.",Toast.LENGTH_SHORT).show();
-        return null;
-    }
-
-    public void analyzePost(String s){
-        try{
-            String link ;
-            Pattern pattern = Pattern.compile("window._sharedData = (.*?)[}];");
-            Matcher matcher = pattern.matcher(s);
-
-            matcher.find();
-            String jObject = matcher.group(1)+"}";
-            JSONObject jsonObject = new JSONObject(jObject);
-            JSONObject entry_data = jsonObject.getJSONObject("entry_data");
-            JSONArray PostPage = entry_data.getJSONArray("PostPage");
-            JSONObject first_graphql_shortcode_media = PostPage.getJSONObject(0).getJSONObject("graphql").getJSONObject("shortcode_media");
-            JSONObject owner = first_graphql_shortcode_media.getJSONObject("owner");
-
-            Log.i("USERNAME",owner.getString("username"));
-            Log.i("PROFILE_PIC_URL",owner.getString("profile_pic_url"));
-
-            if(first_graphql_shortcode_media.has("edge_sidecar_to_children")){
-                JSONArray children_edges = first_graphql_shortcode_media.getJSONObject("edge_sidecar_to_children").getJSONArray("edges");
-                Log.i("WITH_CHILDREN_COUNT",Integer.toString(children_edges.length()));
-
-                for(int i=0; i<children_edges.length(); i++){
-                    JSONObject node = children_edges.getJSONObject(i).getJSONObject("node");
-
-                    if(node.has("video_url")){
-                        //link = node.getString("video_url");
-                        link = node.getJSONArray("display_resources").getJSONObject(2).getString("src");
-                        Log.i("CHILDREN_W_VIDEO_"+(i+1),node.getString("video_url"));
-                    }else{
-                        link = node.getJSONArray("display_resources").getJSONObject(2).getString("src");
-                        Log.i("CHILDREN_W_PHOTO_"+(i+1),node.getJSONArray("display_resources").getJSONObject(2).getString("src"));
-                    }
-                    ImageDownloader imageTask = new ImageDownloader();
-                    imageTask.execute(link);
-                }
-            }else{
-                if(first_graphql_shortcode_media.has("video_url")){
-                    Log.i("NO_CHILDREN_W_VIDEO",first_graphql_shortcode_media.getString("video_url"));
-                    //first_graphql_shortcode_media.getString("video_url");
-                    link = first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(2).getString("src");
-                }else{
-                    Log.i("NO_CHILDREN_W_PHOTO",first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(2).getString("src"));
-                    link = first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(2).getString("src");
-                }
-                ImageDownloader imageTask = new ImageDownloader();
-                imageTask.execute(link);
-            }
-        }catch (Exception e){
-            Toast.makeText(getContext(),"Error with your link.",Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-    }
-
-    public void fetchPhoto(){
+    public void openLink(){
         DownloadTask task = new DownloadTask();
         try {
             task.execute(link);
@@ -173,6 +104,69 @@ public class downloadFragment extends Fragment {
         }
     }
 
+    public void analyzePost(String s){
+        try{
+            Download myDownload = new Download();
+            String link ;
+            Pattern pattern = Pattern.compile("window._sharedData = (.*?)[}];");
+            Matcher matcher = pattern.matcher(s);
+
+            matcher.find();
+            String jObject = matcher.group(1)+"}";
+            JSONObject jsonObject = new JSONObject(jObject);
+            JSONObject entry_data = jsonObject.getJSONObject("entry_data");
+            JSONArray PostPage = entry_data.getJSONArray("PostPage");
+            JSONObject first_graphql_shortcode_media = PostPage.getJSONObject(0).getJSONObject("graphql").getJSONObject("shortcode_media");
+            JSONObject owner = first_graphql_shortcode_media.getJSONObject("owner");
+
+            Log.i("USERNAME",owner.getString("username"));
+            Log.i("PROFILE_PIC_URL",owner.getString("profile_pic_url"));
+
+            myDownload.setUsername(owner.getString("username"));
+            myDownload.setProfile_url(owner.getString("profile_pic_url"));
+
+            if(first_graphql_shortcode_media.has("edge_sidecar_to_children")){
+                JSONArray children_edges = first_graphql_shortcode_media.getJSONObject("edge_sidecar_to_children").getJSONArray("edges");
+                Log.i("WITH_CHILDREN_COUNT",Integer.toString(children_edges.length()));
+
+                for(int i=0; i<children_edges.length(); i++){
+                    JSONObject node = children_edges.getJSONObject(i).getJSONObject("node");
+
+                    if(node.has("video_url")){
+                        //link = node.getString("video_url");
+                        link = node.getJSONArray("display_resources").getJSONObject(2).getString("src");
+                        Log.i("CHILDREN_W_VIDEO_"+(i+1),node.getString("video_url"));
+                        myDownload.addOnLinks(node.getString("video_url"),true);
+                    }else{
+                        link = node.getJSONArray("display_resources").getJSONObject(2).getString("src");
+                        Log.i("CHILDREN_W_PHOTO_"+(i+1),node.getJSONArray("display_resources").getJSONObject(2).getString("src"));
+                        myDownload.addOnLinks(link,false);
+                    }
+                    ImageDownloader imageTask = new ImageDownloader();
+                    imageTask.execute(link);
+                }
+            }else{
+                if(first_graphql_shortcode_media.has("video_url")){
+                    Log.i("NO_CHILDREN_W_VIDEO",first_graphql_shortcode_media.getString("video_url"));
+                    //first_graphql_shortcode_media.getString("video_url");
+                    link = first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(2).getString("src");
+                    myDownload.addOnLinks(first_graphql_shortcode_media.getString("video_url"),true);
+                }else{
+                    Log.i("NO_CHILDREN_W_PHOTO",first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(2).getString("src"));
+                    link = first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(2).getString("src");
+                    myDownload.addOnLinks(link,false);
+                }
+                ImageDownloader imageTask = new ImageDownloader();
+                imageTask.execute(link);
+            }
+            Log.i("Download", myDownload.toString());
+        }catch (Exception e){
+            Toast.makeText(getContext(),"Error with your link.",Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
+
     public class ImageDownloader extends AsyncTask<String,Void, Bitmap> {
 
         @Override
@@ -199,5 +193,17 @@ public class downloadFragment extends Fragment {
             imageGrid.setAdapter(new ImageAdapter(getActivity().getApplicationContext(), bitmapList));
 
         }
+    }
+
+    public String readFromClipboard() {
+        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard.hasPrimaryClip()) {
+            android.content.ClipDescription description = clipboard.getPrimaryClipDescription();
+            android.content.ClipData data = clipboard.getPrimaryClip();
+            if (data != null && description != null && description.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))
+                return String.valueOf(data.getItemAt(0).getText());
+        }
+        Toast.makeText(getContext(),"Please copy a valid link.",Toast.LENGTH_SHORT).show();
+        return null;
     }
 }
