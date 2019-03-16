@@ -19,7 +19,8 @@
             <ImageView
                 android:id="@+id/custom_photoWallpaper"
                 android:layout_width="wrap_content"
-                android:layout_height="164dp"
+                android:layout_height="223dp"
+                android:cropToPadding="false"
                 android:scaleType="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
@@ -31,11 +32,11 @@
                 android:id="@+id/custom_constraintLayout"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:background="@android:color/darker_gray"
+                android:background="@drawable/custom_bar_gradient_3"
+                app:layout_constraintBottom_toBottomOf="@+id/custom_photoWallpaper"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/custom_photoWallpaper">
+                app:layout_constraintStart_toStartOf="parent">
 
                 <ImageView
                     android:id="@+id/custom_profilePicView"
@@ -57,6 +58,7 @@
                     android:gravity="center_horizontal|center_vertical"
                     android:text="\@instagram"
                     android:textAlignment="center"
+                    android:textColor="@android:color/white"
                     android:textSize="14sp"
                     android:textStyle="bold|italic"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -81,6 +83,7 @@
                         android:layout_weight="1"
                         android:background="@android:color/transparent"
                         android:padding="8dp"
+                        android:tint="@android:color/white"
                         app:srcCompat="@drawable/baseline_flash_on_black_24dp" />
 
                     <ImageButton
@@ -90,6 +93,7 @@
                         android:layout_weight="1"
                         android:background="@android:color/transparent"
                         android:padding="8dp"
+                        android:tint="@android:color/white"
                         app:srcCompat="@drawable/ic_menu_share" />
 
                     <ImageButton
@@ -99,6 +103,7 @@
                         android:layout_weight="1"
                         android:background="@android:color/transparent"
                         android:padding="8dp"
+                        android:tint="@android:color/white"
                         app:srcCompat="@drawable/baseline_save_black_24dp" />
 
                 </LinearLayout>
