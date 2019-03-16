@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+        setFragment(new downloadFragment());
+
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -95,18 +97,10 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_gallery) {
-            Fragment fragment = new GalleryFragment();
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.setCustomAnimations(R.anim.nav_enter,R.anim.nav_exit);
-            transaction.replace(R.id.mainConstraint,fragment);
-            transaction.commit();
+            setFragment(new GalleryFragment());
             // Handle the camera action
         } else if (id == R.id.nav_home) {
-            Fragment fragment = new downloadFragment();
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.setCustomAnimations(R.anim.nav_enter,R.anim.nav_exit);
-            transaction.replace(R.id.mainConstraint,fragment);
-            transaction.commit();
+            setFragment(new downloadFragment());
         }  else if (id == R.id.nav_share) {
 
         } else if (id == R.id.about) {
@@ -129,5 +123,12 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void setFragment(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.nav_enter,R.anim.nav_exit);
+        transaction.replace(R.id.mainConstraint,fragment);
+        transaction.commit();
     }
 }

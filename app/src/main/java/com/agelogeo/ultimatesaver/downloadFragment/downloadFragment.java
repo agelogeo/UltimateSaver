@@ -11,11 +11,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
 import android.widget.Toast;
 
 import com.agelogeo.ultimatesaver.ImageAdapter;
@@ -35,11 +36,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class downloadFragment extends Fragment {
-    String link;
-    GridView imageGrid;
+    String link = "";
+    RecyclerView recyclerView;
     ArrayList<Bitmap> bitmapList;
     View v;
-
+    ArrayList<Download> list_of_downloads = new ArrayList<Download>();
+    RVAdapter adapter;
 
 
     @Override
@@ -47,7 +49,17 @@ public class downloadFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.download_fragment, container, false);
 
-        imageGrid = v.findViewById(R.id.gridview);
+        list_of_downloads.add(new Download());
+
+        recyclerView = v.findViewById(R.id.recycler_view);
+        //recyclerView.setHasFixedSize(false);
+
+        LinearLayoutManager llm = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(llm);
+
+        adapter = new RVAdapter(list_of_downloads);
+        recyclerView.setAdapter(adapter);
+
         bitmapList = new ArrayList<Bitmap>();
 
         FloatingActionButton fab = v.findViewById(R.id.pasteButton);
@@ -107,6 +119,7 @@ public class downloadFragment extends Fragment {
     public void analyzePost(String s){
         try{
             Download myDownload = new Download();
+
             String link ;
             Pattern pattern = Pattern.compile("window._sharedData = (.*?)[}];");
             Matcher matcher = pattern.matcher(s);
@@ -160,6 +173,10 @@ public class downloadFragment extends Fragment {
                 imageTask.execute(link);
             }
             Log.i("Download", myDownload.toString());
+            list_of_downloads.add(myDownload);
+
+            //adapter.updateList(myDownload);
+            adapter.notifyDataSetChanged();
         }catch (Exception e){
             Toast.makeText(getContext(),"Error with your link.",Toast.LENGTH_SHORT).show();
             e.printStackTrace();
@@ -190,7 +207,7 @@ public class downloadFragment extends Fragment {
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             bitmapList.add(bitmap);
-            imageGrid.setAdapter(new ImageAdapter(getActivity().getApplicationContext(), bitmapList));
+            //imageGrid.setAdapter(new ImageAdapter(getActivity().getApplicationContext(), bitmapList));
 
         }
     }
@@ -204,6 +221,6 @@ public class downloadFragment extends Fragment {
                 return String.valueOf(data.getItemAt(0).getText());
         }
         Toast.makeText(getContext(),"Please copy a valid link.",Toast.LENGTH_SHORT).show();
-        return null;
+        return "";
     }
 }
