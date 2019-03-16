@@ -5,7 +5,7 @@ public class Download {
     ArrayList<String> links = new ArrayList<String>();
     ArrayList<String> file_paths = new ArrayList<String>();
     ArrayList<Boolean> isVideo = new ArrayList<Boolean>();
-    String username ;
+    String username = "username";
     String profile_url;
     long time;
 

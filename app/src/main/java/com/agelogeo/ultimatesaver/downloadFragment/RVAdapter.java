@@ -1,5 +1,8 @@
 package com.agelogeo.ultimatesaver.downloadFragment;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -13,10 +16,15 @@ import android.widget.TextView;
 import com.agelogeo.ultimatesaver.Download;
 import com.agelogeo.ultimatesaver.R;
 
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder> {
     ArrayList<Download> downloads;
+    Bitmap myBitmap = null;
 
     RVAdapter(ArrayList<Download> downloads){
         this.downloads = downloads;
@@ -36,7 +44,17 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull DownloadViewHolder downloadViewHolder, int i) {
-
+        downloadViewHolder.username.setText("@"+downloads.get(i).getUsername());
+        ImageDownloader imageTask = new ImageDownloader();
+        ImageDownloader imageTask2 = new ImageDownloader();
+        try {
+            downloadViewHolder.photoWallpaper.setImageBitmap(imageTask.execute(downloads.get(i).getLinks().get(0)).get());
+            downloadViewHolder.profilePicView.setImageBitmap(imageTask2.execute(downloads.get(i).getProfile_url()).get());
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -62,4 +80,31 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder
 
         }
     }
+
+    public class ImageDownloader extends AsyncTask<String,Void, Bitmap> {
+
+        @Override
+        protected Bitmap doInBackground(String... urls) {
+            try{
+                URL url = new URL(urls[0]);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.connect();
+
+                InputStream inputStream = httpURLConnection.getInputStream();
+                Bitmap myBitmap = BitmapFactory.decodeStream(inputStream);
+
+                return myBitmap;
+
+            }catch (Exception e){
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            myBitmap = bitmap;
+        }
+    }
+
 }

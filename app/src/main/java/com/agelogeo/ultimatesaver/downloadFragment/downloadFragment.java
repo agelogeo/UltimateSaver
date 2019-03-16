@@ -49,7 +49,7 @@ public class downloadFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.download_fragment, container, false);
 
-        list_of_downloads.add(new Download());
+        //list_of_downloads.add(new Download());
 
         recyclerView = v.findViewById(R.id.recycler_view);
         //recyclerView.setHasFixedSize(false);
