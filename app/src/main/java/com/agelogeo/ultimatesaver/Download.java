@@ -3,6 +3,7 @@ import java.util.ArrayList;
 
 public class Download {
     ArrayList<String> links = new ArrayList<String>();
+    ArrayList<String> previews = new ArrayList<String>();
     ArrayList<String> file_paths = new ArrayList<String>();
     ArrayList<Boolean> isVideo = new ArrayList<Boolean>();
     String username = "username";
@@ -12,16 +13,18 @@ public class Download {
     public Download() {
         this.time = System.currentTimeMillis();
         links = new ArrayList<String>();
+        previews = new ArrayList<String>();
         file_paths = new ArrayList<String>();
         isVideo = new ArrayList<Boolean>();
     }
 
-    public Download(ArrayList<String> links, ArrayList<String> file_paths, String username, String profile_url) {
+    public Download(ArrayList<String> previews,ArrayList<String> links, ArrayList<String> file_paths, String username, String profile_url) {
         this.links = links;
         this.file_paths = file_paths;
         this.username = username;
         this.profile_url = profile_url;
         this.time = System.currentTimeMillis();
+        this.previews = previews;
     }
 
     public String getProfile_url() {
@@ -32,9 +35,10 @@ public class Download {
         this.profile_url = profile_url;
     }
 
-    public void addOnLinks(String link,Boolean isVideo){
+    public void addOnLinks(String link,Boolean isVideo, String preview){
         this.links.add(link);
         this.isVideo.add(isVideo);
+        this.previews.add(preview);
     }
 
     public void addOnPaths(String path){
@@ -43,6 +47,10 @@ public class Download {
 
     public ArrayList<String> getLinks() {
         return links;
+    }
+
+    public ArrayList<String> getPreviews() {
+        return previews;
     }
 
     public void setLinks(ArrayList<String> links) {

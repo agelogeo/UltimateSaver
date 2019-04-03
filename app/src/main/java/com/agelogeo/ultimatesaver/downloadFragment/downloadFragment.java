@@ -118,9 +118,9 @@ public class downloadFragment extends Fragment {
 
     public void analyzePost(String s){
         try{
-            Download myDownload = new Download();
 
-            String link ;
+
+            String link , preview;
             Pattern pattern = Pattern.compile("window._sharedData = (.*?)[}];");
             Matcher matcher = pattern.matcher(s);
 
@@ -135,8 +135,6 @@ public class downloadFragment extends Fragment {
             Log.i("USERNAME",owner.getString("username"));
             Log.i("PROFILE_PIC_URL",owner.getString("profile_pic_url"));
 
-            myDownload.setUsername(owner.getString("username"));
-            myDownload.setProfile_url(owner.getString("profile_pic_url"));
 
             if(first_graphql_shortcode_media.has("edge_sidecar_to_children")){
                 JSONArray children_edges = first_graphql_shortcode_media.getJSONObject("edge_sidecar_to_children").getJSONArray("edges");
@@ -144,36 +142,44 @@ public class downloadFragment extends Fragment {
 
                 for(int i=0; i<children_edges.length(); i++){
                     JSONObject node = children_edges.getJSONObject(i).getJSONObject("node");
+                    Download myDownload = new Download();
+                    myDownload.setUsername(owner.getString("username"));
+                    myDownload.setProfile_url(owner.getString("profile_pic_url"));
 
                     if(node.has("video_url")){
                         //link = node.getString("video_url");
-                        link = node.getJSONArray("display_resources").getJSONObject(2).getString("src");
-                        Log.i("CHILDREN_W_VIDEO_"+(i+1),node.getString("video_url"));
-                        myDownload.addOnLinks(node.getString("video_url"),true);
+                        link = node.getString("video_url");
+                        preview = node.getJSONArray("display_resources").getJSONObject(0).getString("src");
+                        Log.i("CHILDREN_W_VIDEO_"+(i+1),link);
+                        myDownload.addOnLinks(link,true,preview);
                     }else{
                         link = node.getJSONArray("display_resources").getJSONObject(2).getString("src");
-                        Log.i("CHILDREN_W_PHOTO_"+(i+1),node.getJSONArray("display_resources").getJSONObject(2).getString("src"));
-                        myDownload.addOnLinks(link,false);
+                        preview = node.getJSONArray("display_resources").getJSONObject(0).getString("src");
+                        Log.i("CHILDREN_W_PHOTO_"+(i+1),link);
+                        myDownload.addOnLinks(link,false,preview);
                     }
-                    ImageDownloader imageTask = new ImageDownloader();
-                    imageTask.execute(link);
+                    list_of_downloads.add(myDownload);
                 }
             }else{
+                Download myDownload = new Download();
+                myDownload.setUsername(owner.getString("username"));
+                myDownload.setProfile_url(owner.getString("profile_pic_url"));
                 if(first_graphql_shortcode_media.has("video_url")){
                     Log.i("NO_CHILDREN_W_VIDEO",first_graphql_shortcode_media.getString("video_url"));
                     //first_graphql_shortcode_media.getString("video_url");
-                    link = first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(2).getString("src");
-                    myDownload.addOnLinks(first_graphql_shortcode_media.getString("video_url"),true);
+                    link = first_graphql_shortcode_media.getString("video_url");
+                    preview = first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(0).getString("src");
+                    myDownload.addOnLinks(link,true,preview);
                 }else{
-                    Log.i("NO_CHILDREN_W_PHOTO",first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(2).getString("src"));
                     link = first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(2).getString("src");
-                    myDownload.addOnLinks(link,false);
+                    preview = first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(0).getString("src");
+                    Log.i("NO_CHILDREN_W_PHOTO",link);
+                    myDownload.addOnLinks(link,false,preview);
                 }
-                ImageDownloader imageTask = new ImageDownloader();
-                imageTask.execute(link);
+                list_of_downloads.add(myDownload);
             }
-            Log.i("Download", myDownload.toString());
-            list_of_downloads.add(myDownload);
+            //Log.i("Download", myDownload.toString());
+
 
             //adapter.updateList(myDownload);
             adapter.notifyDataSetChanged();

@@ -48,7 +48,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder
         ImageDownloader imageTask = new ImageDownloader();
         ImageDownloader imageTask2 = new ImageDownloader();
         try {
-            downloadViewHolder.photoWallpaper.setImageBitmap(imageTask.execute(downloads.get(i).getLinks().get(0)).get());
+            downloadViewHolder.photoWallpaper.setImageBitmap(imageTask.execute(downloads.get(i).getPreviews().get(0)).get());
             downloadViewHolder.profilePicView.setImageBitmap(imageTask2.execute(downloads.get(i).getProfile_url()).get());
         } catch (ExecutionException e) {
             e.printStackTrace();
