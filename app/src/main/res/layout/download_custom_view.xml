@@ -53,18 +53,17 @@
 
                 <TextView
                     android:id="@+id/custom_usernameTextView"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_marginStart="2dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
                     android:gravity="center_horizontal|center_vertical"
                     android:text="\@instagram"
-                    android:textAlignment="center"
+                    android:textAlignment="textStart"
                     android:textColor="@android:color/white"
                     android:textSize="14sp"
                     android:textStyle="bold|italic"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/custom_buttons_layout"
                     app:layout_constraintStart_toEndOf="@+id/custom_profilePicView"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -72,7 +71,7 @@
                     android:id="@+id/custom_buttons_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="2dp"
                     android:gravity="center_horizontal|center_vertical"
                     android:orientation="horizontal"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -85,9 +84,9 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@android:color/transparent"
-                        android:padding="8dp"
+                        android:padding="4dp"
                         android:tint="@android:color/white"
-                        app:srcCompat="@drawable/baseline_flash_on_black_24dp" />
+                        app:srcCompat="@drawable/baseline_repeat_black_36" />
 
                     <ImageButton
                         android:id="@+id/custom_share_button"
@@ -95,9 +94,9 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@android:color/transparent"
-                        android:padding="8dp"
+                        android:padding="4dp"
                         android:tint="@android:color/white"
-                        app:srcCompat="@drawable/ic_menu_share" />
+                        app:srcCompat="@drawable/baseline_share_black_36" />
 
                     <ImageButton
                         android:id="@+id/custom_save_button"
@@ -105,9 +104,9 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@android:color/transparent"
-                        android:padding="8dp"
+                        android:padding="4dp"
                         android:tint="@android:color/white"
-                        app:srcCompat="@drawable/baseline_save_black_24dp" />
+                        app:srcCompat="@drawable/baseline_save_alt_black_36" />
 
                 </LinearLayout>
 
