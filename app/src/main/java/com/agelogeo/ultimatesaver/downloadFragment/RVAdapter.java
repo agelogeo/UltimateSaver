@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.agelogeo.ultimatesaver.Download;
 import com.agelogeo.ultimatesaver.R;
+import com.squareup.picasso.Picasso;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -45,14 +46,14 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder
     @Override
     public void onBindViewHolder(@NonNull DownloadViewHolder downloadViewHolder, int i) {
         downloadViewHolder.username.setText("@"+downloads.get(i).getUsername());
-        ImageDownloader imageTask = new ImageDownloader();
-        ImageDownloader imageTask2 = new ImageDownloader();
+        //ImageDownloader imageTask = new ImageDownloader();
+        //ImageDownloader imageTask2 = new ImageDownloader();
         try {
-            downloadViewHolder.photoWallpaper.setImageBitmap(imageTask.execute(downloads.get(i).getPreviews().get(0)).get());
-            downloadViewHolder.profilePicView.setImageBitmap(imageTask2.execute(downloads.get(i).getProfile_url()).get());
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+            Picasso.get().load(downloads.get(i).getPreviews().get(0)).into(downloadViewHolder.photoWallpaper);
+            Picasso.get().load(downloads.get(i).getProfile_url()).into(downloadViewHolder.profilePicView);
+            //downloadViewHolder.photoWallpaper.setImageBitmap(imageTask.execute(downloads.get(i).getPreviews().get(0)).get());
+            //downloadViewHolder.profilePicView.setImageBitmap(imageTask2.execute(downloads.get(i).getProfile_url()).get());
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

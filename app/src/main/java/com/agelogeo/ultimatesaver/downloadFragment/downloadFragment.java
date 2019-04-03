@@ -34,6 +34,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.squareup.picasso.Picasso;
 
 public class downloadFragment extends Fragment {
     String link = "";
