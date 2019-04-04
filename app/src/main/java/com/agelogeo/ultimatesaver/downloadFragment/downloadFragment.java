@@ -269,8 +269,8 @@ public class downloadFragment extends Fragment {
             super(0,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
             mAdapter = adapter;
             icon = ContextCompat.getDrawable(getContext(),
-                    R.drawable.ic_dashboard_black_24dp);
-            background = new ColorDrawable(Color.RED);
+                    R.drawable.baseline_delete_sweep_black_48);
+            background = new ColorDrawable(getResources().getColor(R.color.colorAccent));
         }
 
         @Override
@@ -293,13 +293,13 @@ public class downloadFragment extends Fragment {
             View itemView = viewHolder.itemView;
             int backgroundCornerOffset = 20;
 
-            int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 2;
+            int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 5;
             int iconTop = itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2;
             int iconBottom = iconTop + icon.getIntrinsicHeight();
 
             if (dX > 0) { // Swiping to the right
-                int iconLeft = itemView.getLeft() + iconMargin + icon.getIntrinsicWidth();
-                int iconRight = itemView.getLeft() + iconMargin;
+                int iconLeft = itemView.getLeft() + iconMargin ;
+                int iconRight = itemView.getLeft() + iconMargin + icon.getIntrinsicWidth();
                 icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
 
                 background.setBounds(itemView.getLeft(), itemView.getTop(),
