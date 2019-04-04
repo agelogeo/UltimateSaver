@@ -3,13 +3,16 @@ package com.agelogeo.ultimatesaver.downloadFragment;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RotateDrawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -263,14 +266,15 @@ public class downloadFragment extends Fragment {
     public class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
         private RVAdapter mAdapter;
         private Drawable icon;
-        private final ColorDrawable background;
+        private Drawable  background ;
 
         public SwipeToDeleteCallback(RVAdapter adapter) {
             super(0,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
             mAdapter = adapter;
             icon = ContextCompat.getDrawable(getContext(),
                     R.drawable.baseline_delete_sweep_black_48);
-            background = new ColorDrawable(getResources().getColor(R.color.colorAccent));
+            background = getResources().getDrawable(R.drawable.side_nav_bar);
+
         }
 
         @Override
@@ -283,8 +287,6 @@ public class downloadFragment extends Fragment {
             int position = viewHolder.getAdapterPosition();
             deleteItem(position);
         }
-
-
 
         @Override
         public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
