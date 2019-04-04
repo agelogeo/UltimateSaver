@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RotateDrawable;
@@ -298,6 +299,10 @@ public class downloadFragment extends Fragment {
             int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 5;
             int iconTop = itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2;
             int iconBottom = iconTop + icon.getIntrinsicHeight();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                icon.setTint(Color.rgb(255,255,255));
+            }
 
             if (dX > 0) { // Swiping to the right
                 int iconLeft = itemView.getLeft() + iconMargin ;
