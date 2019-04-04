@@ -45,12 +45,9 @@ public class GalleryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.gallery_fragment, container, false);
-        mTextMessage = (TextView) v.findViewById(R.id.message);
-        BottomNavigationView navigation = (BottomNavigationView) v.findViewById(R.id.navigation);
+        mTextMessage = v.findViewById(R.id.message);
+        BottomNavigationView navigation =  v.findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
-
-
 
 
         return v;
@@ -60,7 +57,6 @@ public class GalleryFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
-        // TODO: Use the ViewModel
     }
 
 }

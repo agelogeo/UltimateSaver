@@ -1,7 +1,8 @@
 package com.agelogeo.ultimatesaver;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Download {
+public class Download implements Serializable {
     ArrayList<String> links = new ArrayList<String>();
     ArrayList<String> previews = new ArrayList<String>();
     ArrayList<String> file_paths = new ArrayList<String>();

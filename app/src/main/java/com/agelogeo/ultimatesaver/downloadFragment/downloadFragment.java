@@ -19,14 +19,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.agelogeo.ultimatesaver.ImageAdapter;
 import com.agelogeo.ultimatesaver.Download;
+import com.agelogeo.ultimatesaver.InternalStorage;
 import com.agelogeo.ultimatesaver.R;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -34,12 +35,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.squareup.picasso.Picasso;
 
 public class downloadFragment extends Fragment {
     String link = "";
     RecyclerView recyclerView;
-    ArrayList<Bitmap> bitmapList;
+    //ArrayList<Bitmap> bitmapList;
     View v;
     ArrayList<Download> list_of_downloads = new ArrayList<Download>();
     RVAdapter adapter;
@@ -50,10 +50,7 @@ public class downloadFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.download_fragment, container, false);
 
-        //list_of_downloads.add(new Download());
-
         recyclerView = v.findViewById(R.id.recycler_view);
-        //recyclerView.setHasFixedSize(false);
 
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(llm);
@@ -61,7 +58,24 @@ public class downloadFragment extends Fragment {
         adapter = new RVAdapter(list_of_downloads);
         recyclerView.setAdapter(adapter);
 
-        bitmapList = new ArrayList<Bitmap>();
+        try {
+
+            // Retrieve the list from internal storage
+            ArrayList<Download> cachedDownloads = (ArrayList<Download>) InternalStorage.readObject(getContext(), "downloads");
+
+            // Display the items from the list retrieved.
+            for (Download download : cachedDownloads) {
+                list_of_downloads.add(download);
+                Log.d("Cached Download", download.toString());
+            }
+            adapter.notifyDataSetChanged();
+
+        } catch (IOException e) {
+            Log.e("Error", e.getMessage());
+        } catch (ClassNotFoundException e) {
+            Log.e("Error", e.getMessage());
+        }
+        //bitmapList = new ArrayList<Bitmap>();
 
         FloatingActionButton fab = v.findViewById(R.id.pasteButton);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -119,8 +133,7 @@ public class downloadFragment extends Fragment {
 
     public void analyzePost(String s){
         try{
-
-
+            //list_of_downloads = new ArrayList<Download>();
             String link , preview;
             Pattern pattern = Pattern.compile("window._sharedData = (.*?)[}];");
             Matcher matcher = pattern.matcher(s);
@@ -148,41 +161,44 @@ public class downloadFragment extends Fragment {
                     myDownload.setProfile_url(owner.getString("profile_pic_url"));
 
                     if(node.has("video_url")){
-                        //link = node.getString("video_url");
                         link = node.getString("video_url");
                         preview = node.getJSONArray("display_resources").getJSONObject(0).getString("src");
-                        Log.i("CHILDREN_W_VIDEO_"+(i+1),link);
                         myDownload.addOnLinks(link,true,preview);
+                        Log.i("CHILDREN_W_VIDEO_"+(i+1),link);
                     }else{
                         link = node.getJSONArray("display_resources").getJSONObject(2).getString("src");
                         preview = node.getJSONArray("display_resources").getJSONObject(0).getString("src");
-                        Log.i("CHILDREN_W_PHOTO_"+(i+1),link);
                         myDownload.addOnLinks(link,false,preview);
+                        Log.i("CHILDREN_W_PHOTO_"+(i+1),link);
                     }
                     list_of_downloads.add(myDownload);
+                    Log.i("Download", myDownload.toString());
+                    // Save the list of entries to internal storage
+                    InternalStorage.writeObject(getContext(), "downloads", list_of_downloads);
+
                 }
             }else{
                 Download myDownload = new Download();
                 myDownload.setUsername(owner.getString("username"));
                 myDownload.setProfile_url(owner.getString("profile_pic_url"));
                 if(first_graphql_shortcode_media.has("video_url")){
-                    Log.i("NO_CHILDREN_W_VIDEO",first_graphql_shortcode_media.getString("video_url"));
-                    //first_graphql_shortcode_media.getString("video_url");
                     link = first_graphql_shortcode_media.getString("video_url");
                     preview = first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(0).getString("src");
                     myDownload.addOnLinks(link,true,preview);
+                    Log.i("NO_CHILDREN_W_VIDEO",link);
                 }else{
                     link = first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(2).getString("src");
                     preview = first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(0).getString("src");
-                    Log.i("NO_CHILDREN_W_PHOTO",link);
                     myDownload.addOnLinks(link,false,preview);
+                    Log.i("NO_CHILDREN_W_PHOTO",link);
                 }
                 list_of_downloads.add(myDownload);
+                Log.i("Download", myDownload.toString());
+                // Save the list of entries to internal storage
+                InternalStorage.writeObject(getContext(), "downloads", list_of_downloads);
+
             }
-            //Log.i("Download", myDownload.toString());
 
-
-            //adapter.updateList(myDownload);
             adapter.notifyDataSetChanged();
         }catch (Exception e){
             Toast.makeText(getContext(),"Error with your link.",Toast.LENGTH_SHORT).show();
@@ -190,34 +206,6 @@ public class downloadFragment extends Fragment {
         }
     }
 
-
-    public class ImageDownloader extends AsyncTask<String,Void, Bitmap> {
-
-        @Override
-        protected Bitmap doInBackground(String... urls) {
-            try{
-                URL url = new URL(urls[0]);
-                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-                httpURLConnection.connect();
-
-                InputStream inputStream = httpURLConnection.getInputStream();
-                Bitmap myBitmap = BitmapFactory.decodeStream(inputStream);
-
-                return myBitmap;
-
-            }catch (Exception e){
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            bitmapList.add(bitmap);
-            //imageGrid.setAdapter(new ImageAdapter(getActivity().getApplicationContext(), bitmapList));
-
-        }
-    }
 
     public String readFromClipboard() {
         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
@@ -230,4 +218,5 @@ public class downloadFragment extends Fragment {
         Toast.makeText(getContext(),"Please copy a valid link.",Toast.LENGTH_SHORT).show();
         return "";
     }
+
 }
