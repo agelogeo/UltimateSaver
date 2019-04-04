@@ -5,14 +5,21 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +50,9 @@ public class downloadFragment extends Fragment {
     View v;
     ArrayList<Download> list_of_downloads = new ArrayList<Download>();
     RVAdapter adapter;
+    Download mRecentlyDeletedItem;
+    int mRecentlyDeletedItemPosition;
+
 
 
     @Override
@@ -57,6 +67,10 @@ public class downloadFragment extends Fragment {
 
         adapter = new RVAdapter(list_of_downloads);
         recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        ItemTouchHelper itemTouchHelper = new
+                ItemTouchHelper(new SwipeToDeleteCallback(adapter));
+        itemTouchHelper.attachToRecyclerView(recyclerView);
 
         try {
 
@@ -82,35 +96,33 @@ public class downloadFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 link = readFromClipboard();
-                Log.i("URL",link);
+                Log.i("URL", link);
                 openLink();
             }
         });
 
 
-
-
         return v;
     }
 
-    public void openLink(){
+    public void openLink() {
         DownloadTask task = new DownloadTask();
         try {
             task.execute(link);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public class DownloadTask extends AsyncTask<String,Void ,String> {
+    public class DownloadTask extends AsyncTask<String, Void, String> {
 
         @Override
         protected String doInBackground(String... urls) {
-            String result = "",line = null;
+            String result = "", line = null;
             URL url;
             HttpURLConnection urlConnection = null;
 
-            try{
+            try {
                 url = new URL(urls[0]);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -119,7 +131,7 @@ public class downloadFragment extends Fragment {
                     result += line;
 
                 return result;
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 return null;
             }
@@ -131,81 +143,110 @@ public class downloadFragment extends Fragment {
         }
     }
 
-    public void analyzePost(String s){
-        try{
+    public void analyzePost(String s) {
+        try {
             //list_of_downloads = new ArrayList<Download>();
-            String link , preview;
+            String link, preview;
             Pattern pattern = Pattern.compile("window._sharedData = (.*?)[}];");
             Matcher matcher = pattern.matcher(s);
 
             matcher.find();
-            String jObject = matcher.group(1)+"}";
+            String jObject = matcher.group(1) + "}";
             JSONObject jsonObject = new JSONObject(jObject);
             JSONObject entry_data = jsonObject.getJSONObject("entry_data");
             JSONArray PostPage = entry_data.getJSONArray("PostPage");
             JSONObject first_graphql_shortcode_media = PostPage.getJSONObject(0).getJSONObject("graphql").getJSONObject("shortcode_media");
             JSONObject owner = first_graphql_shortcode_media.getJSONObject("owner");
 
-            Log.i("USERNAME",owner.getString("username"));
-            Log.i("PROFILE_PIC_URL",owner.getString("profile_pic_url"));
+            Log.i("USERNAME", owner.getString("username"));
+            Log.i("PROFILE_PIC_URL", owner.getString("profile_pic_url"));
 
 
-            if(first_graphql_shortcode_media.has("edge_sidecar_to_children")){
+            if (first_graphql_shortcode_media.has("edge_sidecar_to_children")) {
                 JSONArray children_edges = first_graphql_shortcode_media.getJSONObject("edge_sidecar_to_children").getJSONArray("edges");
-                Log.i("WITH_CHILDREN_COUNT",Integer.toString(children_edges.length()));
+                Log.i("WITH_CHILDREN_COUNT", Integer.toString(children_edges.length()));
 
-                for(int i=0; i<children_edges.length(); i++){
+                for (int i = 0; i < children_edges.length(); i++) {
                     JSONObject node = children_edges.getJSONObject(i).getJSONObject("node");
                     Download myDownload = new Download();
                     myDownload.setUsername(owner.getString("username"));
                     myDownload.setProfile_url(owner.getString("profile_pic_url"));
 
-                    if(node.has("video_url")){
+                    if (node.has("video_url")) {
                         link = node.getString("video_url");
                         preview = node.getJSONArray("display_resources").getJSONObject(0).getString("src");
-                        myDownload.addOnLinks(link,true,preview);
-                        Log.i("CHILDREN_W_VIDEO_"+(i+1),link);
-                    }else{
+                        myDownload.addOnLinks(link, true, preview);
+                        Log.i("CHILDREN_W_VIDEO_" + (i + 1), link);
+                    } else {
                         link = node.getJSONArray("display_resources").getJSONObject(2).getString("src");
                         preview = node.getJSONArray("display_resources").getJSONObject(0).getString("src");
-                        myDownload.addOnLinks(link,false,preview);
-                        Log.i("CHILDREN_W_PHOTO_"+(i+1),link);
+                        myDownload.addOnLinks(link, false, preview);
+                        Log.i("CHILDREN_W_PHOTO_" + (i + 1), link);
                     }
                     list_of_downloads.add(myDownload);
                     Log.i("Download", myDownload.toString());
                     // Save the list of entries to internal storage
-                    InternalStorage.writeObject(getContext(), "downloads", list_of_downloads);
-
+                    saveDownloads();
                 }
-            }else{
+            } else {
                 Download myDownload = new Download();
                 myDownload.setUsername(owner.getString("username"));
                 myDownload.setProfile_url(owner.getString("profile_pic_url"));
-                if(first_graphql_shortcode_media.has("video_url")){
+                if (first_graphql_shortcode_media.has("video_url")) {
                     link = first_graphql_shortcode_media.getString("video_url");
                     preview = first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(0).getString("src");
-                    myDownload.addOnLinks(link,true,preview);
-                    Log.i("NO_CHILDREN_W_VIDEO",link);
-                }else{
+                    myDownload.addOnLinks(link, true, preview);
+                    Log.i("NO_CHILDREN_W_VIDEO", link);
+                } else {
                     link = first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(2).getString("src");
                     preview = first_graphql_shortcode_media.getJSONArray("display_resources").getJSONObject(0).getString("src");
-                    myDownload.addOnLinks(link,false,preview);
-                    Log.i("NO_CHILDREN_W_PHOTO",link);
+                    myDownload.addOnLinks(link, false, preview);
+                    Log.i("NO_CHILDREN_W_PHOTO", link);
                 }
                 list_of_downloads.add(myDownload);
                 Log.i("Download", myDownload.toString());
                 // Save the list of entries to internal storage
-                InternalStorage.writeObject(getContext(), "downloads", list_of_downloads);
-
+                saveDownloads();
             }
 
             adapter.notifyDataSetChanged();
-        }catch (Exception e){
-            Toast.makeText(getContext(),"Error with your link.",Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Error with your link.", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
     }
 
+    public void saveDownloads(){
+        try {
+            InternalStorage.writeObject(getContext(), "downloads", list_of_downloads);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showUndoSnackbar() {
+        Snackbar snackbar = Snackbar.make(v, "1 Item deleted.",
+                Snackbar.LENGTH_SHORT);
+        snackbar.setAction("Undo", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                list_of_downloads.add(mRecentlyDeletedItemPosition,
+                        mRecentlyDeletedItem);
+                adapter.notifyItemInserted(mRecentlyDeletedItemPosition);
+            }
+        });
+        snackbar.show();
+    }
+
+
+    public void deleteItem(int position) {
+        mRecentlyDeletedItem = list_of_downloads.get(position);
+        mRecentlyDeletedItemPosition = position;
+        list_of_downloads.remove(position);
+        adapter.notifyItemRemoved(position);
+        saveDownloads();
+        showUndoSnackbar();
+    }
 
     public String readFromClipboard() {
         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
@@ -215,8 +256,68 @@ public class downloadFragment extends Fragment {
             if (data != null && description != null && description.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))
                 return String.valueOf(data.getItemAt(0).getText());
         }
-        Toast.makeText(getContext(),"Please copy a valid link.",Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "Please copy a valid link.", Toast.LENGTH_SHORT).show();
         return "";
     }
 
+    public class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
+        private RVAdapter mAdapter;
+        private Drawable icon;
+        private final ColorDrawable background;
+
+        public SwipeToDeleteCallback(RVAdapter adapter) {
+            super(0,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+            mAdapter = adapter;
+            icon = ContextCompat.getDrawable(getContext(),
+                    R.drawable.ic_dashboard_black_24dp);
+            background = new ColorDrawable(Color.RED);
+        }
+
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolder1) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+            int position = viewHolder.getAdapterPosition();
+            deleteItem(position);
+        }
+
+
+
+        @Override
+        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            super.onChildDraw(c, recyclerView, viewHolder, dX,
+                    dY, actionState, isCurrentlyActive);
+            View itemView = viewHolder.itemView;
+            int backgroundCornerOffset = 20;
+
+            int iconMargin = (itemView.getHeight() - icon.getIntrinsicHeight()) / 2;
+            int iconTop = itemView.getTop() + (itemView.getHeight() - icon.getIntrinsicHeight()) / 2;
+            int iconBottom = iconTop + icon.getIntrinsicHeight();
+
+            if (dX > 0) { // Swiping to the right
+                int iconLeft = itemView.getLeft() + iconMargin + icon.getIntrinsicWidth();
+                int iconRight = itemView.getLeft() + iconMargin;
+                icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+
+                background.setBounds(itemView.getLeft(), itemView.getTop(),
+                        itemView.getLeft() + ((int) dX) + backgroundCornerOffset,
+                        itemView.getBottom());
+            } else if (dX < 0) { // Swiping to the left
+                int iconLeft = itemView.getRight() - iconMargin - icon.getIntrinsicWidth();
+                int iconRight = itemView.getRight() - iconMargin;
+                icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+
+                background.setBounds(itemView.getRight() + ((int) dX) - backgroundCornerOffset,
+                        itemView.getTop(), itemView.getRight(), itemView.getBottom());
+            } else { // view is unSwiped
+                background.setBounds(0, 0, 0, 0);
+            }
+
+            background.draw(c);
+            icon.draw(c);
+        }
+    }
 }

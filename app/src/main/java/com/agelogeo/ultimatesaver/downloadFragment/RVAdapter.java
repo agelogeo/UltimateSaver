@@ -3,6 +3,7 @@ package com.agelogeo.ultimatesaver.downloadFragment;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,9 @@ import com.agelogeo.ultimatesaver.R;
 import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
-public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder> {
+
+
+public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder>{
     ArrayList<Download> downloads;
 
     RVAdapter(ArrayList<Download> downloads){
@@ -47,6 +50,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder
         return downloads.size();
     }
 
+
     public static class DownloadViewHolder extends RecyclerView.ViewHolder {
         CardView cv;
         TextView username;
@@ -65,5 +69,6 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder
 
         }
     }
+
 
 }
