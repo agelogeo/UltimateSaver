@@ -84,7 +84,7 @@ public class downloadFragment extends Fragment {
         });
 
         recyclerView = v.findViewById(R.id.recycler_view);
-
+        //final Snackbar snackbar = Snackbar.make(recyclerView, "Do you want to delete all saves?",Snackbar.LENGTH_SHORT);
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(llm);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -94,11 +94,19 @@ public class downloadFragment extends Fragment {
 
                 if (!recyclerView.canScrollVertically(1)) {
                     fab.hide();
-                    Toast.makeText(getContext(), "Last", Toast.LENGTH_LONG).show();
-
+                    Snackbar snackbar = Snackbar.make(recyclerView, "Do you want to delete all saves?",Snackbar.LENGTH_SHORT);
+                    snackbar.setAction("Delete All!", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            SavedDownloads.clearStaticDownloads();
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+                    snackbar.show();
                 }else{
                     if(fab.getVisibility() == View.GONE){
                         fab.show();
+                        //snackbar.dismiss();
                     }
                 }
             }

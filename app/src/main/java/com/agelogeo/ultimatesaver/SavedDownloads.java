@@ -29,4 +29,8 @@ public final class SavedDownloads {
     public static void removeFromStaticDownloads(int position){
         staticDownloads.remove(position);
     }
+
+    public static void clearStaticDownloads(){
+        staticDownloads.clear();
+    }
 }
