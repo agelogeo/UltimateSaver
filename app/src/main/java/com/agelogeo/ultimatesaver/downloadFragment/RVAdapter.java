@@ -46,7 +46,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder
     @Override
     public DownloadViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.download_custom_view, viewGroup, false);
-        DownloadViewHolder pvh = new DownloadViewHolder(v, SavedDownloads.getItemFromStaticDownloads(i),i);
+        DownloadViewHolder pvh = new DownloadViewHolder(v, SavedDownloads.getItemFromStaticDownloads(i));
         return pvh;
     }
 
@@ -84,7 +84,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder
         ImageButton save_button, repost_button , share_button;
         Download download;
 
-        DownloadViewHolder(final View itemView, final Download download, final int position) {
+        DownloadViewHolder(final View itemView, final Download download) {
             super(itemView);
             this.download = download;
             cv = itemView.findViewById(R.id.custom_cv);

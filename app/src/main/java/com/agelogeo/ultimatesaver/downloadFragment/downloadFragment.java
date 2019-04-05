@@ -73,10 +73,36 @@ public class downloadFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.download_fragment, container, false);
 
+        final FloatingActionButton fab = v.findViewById(R.id.pasteButton);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                link = readFromClipboard();
+                Log.i("URL", link);
+                openLink();
+            }
+        });
+
         recyclerView = v.findViewById(R.id.recycler_view);
 
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(llm);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (!recyclerView.canScrollVertically(1)) {
+                    fab.hide();
+                    Toast.makeText(getContext(), "Last", Toast.LENGTH_LONG).show();
+
+                }else{
+                    if(fab.getVisibility() == View.GONE){
+                        fab.show();
+                    }
+                }
+            }
+        });
 
         adapter = new RVAdapter(SavedDownloads.staticDownloads);
         recyclerView.setAdapter(adapter);
@@ -103,16 +129,6 @@ public class downloadFragment extends Fragment {
             Log.e("Error", e.getMessage());
         }
         //bitmapList = new ArrayList<Bitmap>();
-
-        FloatingActionButton fab = v.findViewById(R.id.pasteButton);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                link = readFromClipboard();
-                Log.i("URL", link);
-                openLink();
-            }
-        });
 
 
         return v;
