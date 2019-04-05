@@ -101,7 +101,7 @@ public class downloadFragment extends Fragment {
                 if (!recyclerView.canScrollVertically(1)) {
                     fab.hide();
                     if(snackbar == null && SavedDownloads.getStaticDownloads().size() > 10){
-                        snackbar = Snackbar.make(recyclerView, "Do you want to delete all saves?",Snackbar.LENGTH_INDEFINITE);
+                        snackbar = Snackbar.make(recyclerView, "Do you want to delete all saves?",Snackbar.LENGTH_LONG);
                         snackbar.setAction("Delete All!", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
