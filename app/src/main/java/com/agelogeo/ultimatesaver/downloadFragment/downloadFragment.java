@@ -59,9 +59,7 @@ import java.util.regex.Pattern;
 public class downloadFragment extends Fragment {
     String link = "";
     RecyclerView recyclerView;
-    //ArrayList<Bitmap> bitmapList;
     View v;
-    //ArrayList<Download> list_of_downloads = new ArrayList<Download>();
     RVAdapter adapter;
     Download mRecentlyDeletedItem;
     int mRecentlyDeletedItemPosition;
@@ -84,50 +82,73 @@ public class downloadFragment extends Fragment {
         });
 
         recyclerView = v.findViewById(R.id.recycler_view);
+        SavedDownloads.setRecyclerView(recyclerView);
         //final Snackbar snackbar = Snackbar.make(recyclerView, "Do you want to delete all saves?",Snackbar.LENGTH_SHORT);
-        LinearLayoutManager llm = new LinearLayoutManager(getContext());
-        recyclerView.setLayoutManager(llm);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setReverseLayout(true);
+        layoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(layoutManager);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            Snackbar snackbar = null;
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+            }
+
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-
                 if (!recyclerView.canScrollVertically(1)) {
                     fab.hide();
-                    Snackbar snackbar = Snackbar.make(recyclerView, "Do you want to delete all saves?",Snackbar.LENGTH_SHORT);
-                    snackbar.setAction("Delete All!", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            SavedDownloads.clearStaticDownloads();
-                            adapter.notifyDataSetChanged();
+                    if(snackbar == null && SavedDownloads.getStaticDownloads().size() > 10){
+                        snackbar = Snackbar.make(recyclerView, "Do you want to delete all saves?",Snackbar.LENGTH_INDEFINITE);
+                        snackbar.setAction("Delete All!", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                SavedDownloads.clearStaticDownloads();
+                                saveDownloads();
+                                adapter.notifyDataSetChanged();
+                            }
+                        });
+                        snackbar.show();
+                    }else if(SavedDownloads.getStaticDownloads().size() > 10){
+                        if(!snackbar.isShown()){
+                            snackbar = Snackbar.make(recyclerView, "Do you want to delete all saves?",Snackbar.LENGTH_LONG);
+                            snackbar.setAction("Delete All!", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    SavedDownloads.clearStaticDownloads();
+                                    saveDownloads();
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+                            snackbar.show();
                         }
-                    });
-                    snackbar.show();
+                    }
                 }else{
                     if(fab.getVisibility() == View.GONE){
                         fab.show();
-                        //snackbar.dismiss();
+                        if(snackbar != null)
+                            if(snackbar.isShown())
+                                snackbar.dismiss();
                     }
                 }
             }
         });
 
-        adapter = new RVAdapter(SavedDownloads.staticDownloads);
+        adapter = new RVAdapter();
         recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         ItemTouchHelper itemTouchHelper = new
                 ItemTouchHelper(new SwipeToDeleteCallback(adapter));
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
         try {
-
             // Retrieve the list from internal storage
             ArrayList<Download> cachedDownloads = (ArrayList<Download>) InternalStorage.readObject(getContext(), "downloads");
-
+            SavedDownloads.clearStaticDownloads();
             // Display the items from the list retrieved.
             for (Download download : cachedDownloads) {
-                SavedDownloads.addOnStaticDownloads(download);
-                Log.d("Cached Download", download.toString());
+                addOnList(download);
             }
             adapter.notifyDataSetChanged();
 
@@ -136,10 +157,14 @@ public class downloadFragment extends Fragment {
         } catch (ClassNotFoundException e) {
             Log.e("Error", e.getMessage());
         }
-        //bitmapList = new ArrayList<Bitmap>();
-
 
         return v;
+    }
+
+    public void addOnList(Download download){
+        SavedDownloads.addOnStaticDownloads(download);
+        recyclerView.smoothScrollToPosition(SavedDownloads.getStaticDownloads().size()-1);
+        saveDownloads();
     }
 
     public void openLink() {
@@ -220,10 +245,8 @@ public class downloadFragment extends Fragment {
                         myDownload.addOnLinks(link, false, preview);
                         Log.i("CHILDREN_W_PHOTO_" + (i + 1), link);
                     }
-                    SavedDownloads.addOnStaticDownloads(myDownload);
+                    addOnList(myDownload);
                     Log.i("Download", myDownload.toString());
-                    // Save the list of entries to internal storage
-                    saveDownloads();
                 }
             } else {
                 Download myDownload = new Download();
@@ -240,10 +263,8 @@ public class downloadFragment extends Fragment {
                     myDownload.addOnLinks(link, false, preview);
                     Log.i("NO_CHILDREN_W_PHOTO", link);
                 }
-                SavedDownloads.addOnStaticDownloads(myDownload);
+                addOnList(myDownload);
                 Log.i("Download", myDownload.toString());
-                // Save the list of entries to internal storage
-                saveDownloads();
             }
 
             adapter.notifyDataSetChanged();

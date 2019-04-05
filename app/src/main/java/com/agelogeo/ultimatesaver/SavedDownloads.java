@@ -1,9 +1,12 @@
 package com.agelogeo.ultimatesaver;
 
+import android.support.v7.widget.RecyclerView;
+
 import java.util.ArrayList;
 
 public final class SavedDownloads {
 
+    public static RecyclerView recyclerView ;
     public static ArrayList<Download> staticDownloads = new ArrayList<Download>();
 
     public static ArrayList<Download> getStaticDownloads() {
@@ -16,6 +19,7 @@ public final class SavedDownloads {
 
     public static void addOnStaticDownloads(Download download){
         staticDownloads.add(download);
+        //recyclerView.smoothScrollToPosition(0);
     }
 
     public static void addOnStaticDownloads(int position,Download download){
@@ -32,5 +36,9 @@ public final class SavedDownloads {
 
     public static void clearStaticDownloads(){
         staticDownloads.clear();
+    }
+
+    public static void setRecyclerView(RecyclerView recycler){
+        recyclerView = recycler;
     }
 }

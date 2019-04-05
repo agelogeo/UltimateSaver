@@ -34,11 +34,9 @@ import java.util.ArrayList;
 
 
 public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder>{
-    //ArrayList<Download> downloads;
     View v;
 
-    RVAdapter(ArrayList<Download> downloads){
-        //this.downloads = downloads;
+    RVAdapter(){
     }
 
 
@@ -94,6 +92,8 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder
             save_button = itemView.findViewById(R.id.custom_save_button);
             repost_button = itemView.findViewById(R.id.custom_repost_button);
             share_button = itemView.findViewById(R.id.custom_share_button);
+
+
 
         }
     }
