@@ -1,8 +1,11 @@
 package com.agelogeo.ultimatesaver.downloadFragment;
 
+import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,9 +15,11 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RotateDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -33,11 +38,15 @@ import android.widget.Toast;
 import com.agelogeo.ultimatesaver.Download;
 import com.agelogeo.ultimatesaver.InternalStorage;
 import com.agelogeo.ultimatesaver.R;
+import com.agelogeo.ultimatesaver.SavedDownloads;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -52,7 +61,7 @@ public class downloadFragment extends Fragment {
     RecyclerView recyclerView;
     //ArrayList<Bitmap> bitmapList;
     View v;
-    ArrayList<Download> list_of_downloads = new ArrayList<Download>();
+    //ArrayList<Download> list_of_downloads = new ArrayList<Download>();
     RVAdapter adapter;
     Download mRecentlyDeletedItem;
     int mRecentlyDeletedItemPosition;
@@ -69,7 +78,7 @@ public class downloadFragment extends Fragment {
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(llm);
 
-        adapter = new RVAdapter(list_of_downloads);
+        adapter = new RVAdapter(SavedDownloads.staticDownloads);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         ItemTouchHelper itemTouchHelper = new
@@ -83,7 +92,7 @@ public class downloadFragment extends Fragment {
 
             // Display the items from the list retrieved.
             for (Download download : cachedDownloads) {
-                list_of_downloads.add(download);
+                SavedDownloads.addOnStaticDownloads(download);
                 Log.d("Cached Download", download.toString());
             }
             adapter.notifyDataSetChanged();
@@ -187,7 +196,7 @@ public class downloadFragment extends Fragment {
                         myDownload.addOnLinks(link, false, preview);
                         Log.i("CHILDREN_W_PHOTO_" + (i + 1), link);
                     }
-                    list_of_downloads.add(myDownload);
+                    SavedDownloads.addOnStaticDownloads(myDownload);
                     Log.i("Download", myDownload.toString());
                     // Save the list of entries to internal storage
                     saveDownloads();
@@ -207,7 +216,7 @@ public class downloadFragment extends Fragment {
                     myDownload.addOnLinks(link, false, preview);
                     Log.i("NO_CHILDREN_W_PHOTO", link);
                 }
-                list_of_downloads.add(myDownload);
+                SavedDownloads.addOnStaticDownloads(myDownload);
                 Log.i("Download", myDownload.toString());
                 // Save the list of entries to internal storage
                 saveDownloads();
@@ -222,7 +231,7 @@ public class downloadFragment extends Fragment {
 
     public void saveDownloads(){
         try {
-            InternalStorage.writeObject(getContext(), "downloads", list_of_downloads);
+            InternalStorage.writeObject(getContext(), "downloads", SavedDownloads.getStaticDownloads());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -234,7 +243,7 @@ public class downloadFragment extends Fragment {
         snackbar.setAction("Undo", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                list_of_downloads.add(mRecentlyDeletedItemPosition,
+                SavedDownloads.addOnStaticDownloads(mRecentlyDeletedItemPosition,
                         mRecentlyDeletedItem);
                 adapter.notifyItemInserted(mRecentlyDeletedItemPosition);
             }
@@ -244,9 +253,9 @@ public class downloadFragment extends Fragment {
 
 
     public void deleteItem(int position) {
-        mRecentlyDeletedItem = list_of_downloads.get(position);
+        mRecentlyDeletedItem = SavedDownloads.getItemFromStaticDownloads(position);
         mRecentlyDeletedItemPosition = position;
-        list_of_downloads.remove(position);
+        SavedDownloads.removeFromStaticDownloads(position);
         adapter.notifyItemRemoved(position);
         saveDownloads();
         showUndoSnackbar();
@@ -327,4 +336,6 @@ public class downloadFragment extends Fragment {
             icon.draw(c);
         }
     }
+
+
 }
