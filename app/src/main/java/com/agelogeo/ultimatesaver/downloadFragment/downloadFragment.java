@@ -291,6 +291,7 @@ public class downloadFragment extends Fragment {
                 SavedDownloads.addOnStaticDownloads(mRecentlyDeletedItemPosition,
                         mRecentlyDeletedItem);
                 adapter.notifyItemInserted(mRecentlyDeletedItemPosition);
+                saveDownloads();
             }
         });
         snackbar.show();
