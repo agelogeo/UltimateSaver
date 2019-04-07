@@ -142,6 +142,7 @@ public class downloadFragment extends Fragment {
                 ItemTouchHelper(new SwipeToDeleteCallback(adapter));
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
+
         try {
             // Retrieve the list from internal storage
             ArrayList<Download> cachedDownloads = (ArrayList<Download>) InternalStorage.readObject(getContext(), "downloads");

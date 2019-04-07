@@ -27,7 +27,8 @@
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/background_gradient" />
+                app:srcCompat="@drawable/background_gradient"
+                android:transitionName="@string/transition_string"/>
 
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/custom_constraintLayout"

@@ -1,6 +1,7 @@
 package com.agelogeo.ultimatesaver.downloadFragment;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -22,6 +26,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.agelogeo.ultimatesaver.Download;
+import com.agelogeo.ultimatesaver.MainActivity;
+import com.agelogeo.ultimatesaver.PostActivity;
 import com.agelogeo.ultimatesaver.R;
 import com.agelogeo.ultimatesaver.SavedDownloads;
 import com.squareup.picasso.Picasso;
@@ -49,11 +55,12 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull DownloadViewHolder downloadViewHolder,int i) {
+    public void onBindViewHolder(@NonNull final DownloadViewHolder downloadViewHolder, int i) {
         final int position = i;
         downloadViewHolder.username.setText("@"+SavedDownloads.getItemFromStaticDownloads(i).getUsername());
 
         try {
+            Picasso.get().setIndicatorsEnabled(true);
             Picasso.get().load(SavedDownloads.getItemFromStaticDownloads(i).getPreviews().get(0)).into(downloadViewHolder.photoWallpaper);
             Picasso.get().load(SavedDownloads.getItemFromStaticDownloads(i).getProfile_url()).into(downloadViewHolder.profilePicView);
         } catch (Exception e) {
@@ -63,11 +70,32 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder
         downloadViewHolder.save_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SaveImage(v.getContext(),position);
+                SavedDownloads.SaveImage(v.getContext(),position);
+            }
+        });
+
+        downloadViewHolder.photoWallpaper.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), PostActivity.class);
+                intent.putExtra("position",position);
+
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        // the context of the activity
+                        (Activity)v.getContext(),
+
+                        // For each shared element, add to this method a new Pair item,
+                        // which contains the reference of the view we are transitioning *from*,
+                        // and the value of the transitionName attribute
+                        new Pair<View, String>(v.findViewById(R.id.custom_photoWallpaper),
+                                v.getContext().getString(R.string.transition_string))
+                );
+                ActivityCompat.startActivity(v.getContext(), intent, options.toBundle());
             }
         });
 
     }
+
 
     @Override
     public int getItemCount() {
@@ -98,69 +126,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder
         }
     }
 
-    private static void SaveImage(final Context context, final int position){
-        final ProgressDialog progress = new ProgressDialog(context);
-        class SaveThisImage extends AsyncTask<Void, Void, Void> {
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                progress.setTitle("Processing");
-                progress.setMessage("Please Wait...");
-                progress.setCancelable(false);
-                progress.show();
-            }
-            @Override
-            protected Void doInBackground(Void... arg0) {
-                try{
-                    // Find the SD Card path
-                    File filepath = Environment.getExternalStorageDirectory();
 
-                    // Create a new folder in SD Card
-                    File dir = new File(filepath.getAbsolutePath()
-                            + "/UltimateSaver/");
-                    dir.mkdirs();
-
-                    //String filteredUploader = uploader.replaceAll("[^a-z0-9A-Z]", "_");
-                    //Log.i("Uploader",uploader);
-                    //Log.i("FilteredUploader",filteredUploader);
-                    // Create a name for the saved image
-                    long datetime = System.currentTimeMillis();
-
-                    File myImageFile = new File(dir, SavedDownloads.getItemFromStaticDownloads(position).getUsername()+Long.toString(datetime)+".png");
-                    FileOutputStream fos = null;
-                    try {
-                        fos = new FileOutputStream(myImageFile);
-                        Bitmap bitmap = Picasso.get().load(SavedDownloads.getItemFromStaticDownloads(position).getLinks().get(0)).get();
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-
-                        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                        intent.setData(Uri.fromFile(myImageFile));
-                        context.sendBroadcast(intent);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            fos.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }catch (Exception e){
-                }
-                return null;
-            }
-            @Override
-            protected void onPostExecute(Void result) {
-                super.onPostExecute(result);
-                if(progress.isShowing()){
-                    progress.dismiss();
-                }
-                Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show();
-            }
-        }
-        SaveThisImage shareimg = new SaveThisImage();
-        shareimg.execute();
-    }
 
 
 }
