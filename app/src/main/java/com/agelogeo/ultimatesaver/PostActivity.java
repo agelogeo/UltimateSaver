@@ -9,6 +9,8 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import uk.co.senab.photoview.PhotoViewAttacher;
+
 public class PostActivity extends AppCompatActivity {
 
     @Override
@@ -21,6 +23,7 @@ public class PostActivity extends AppCompatActivity {
         ImageView imageView = findViewById(R.id.post_Photo);
         Picasso.get().setIndicatorsEnabled(true);
         Picasso.get().load(SavedDownloads.getItemFromStaticDownloads(position).getLinks().get(0)).into(imageView);
+        PhotoViewAttacher mAttacher = new PhotoViewAttacher(imageView);
 
         Button post_Save = findViewById(R.id.post_Save);
         post_Save.setOnClickListener(new View.OnClickListener() {
@@ -29,6 +32,8 @@ public class PostActivity extends AppCompatActivity {
                 SavedDownloads.SaveImage(PostActivity.this,position);
             }
         });
+
+
 
 
 
