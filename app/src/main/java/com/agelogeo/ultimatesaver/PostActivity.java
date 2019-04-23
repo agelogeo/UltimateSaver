@@ -22,7 +22,7 @@ public class PostActivity extends AppCompatActivity {
         final int position = i.getIntExtra("position",0);
         ImageView imageView = findViewById(R.id.post_Photo);
         Picasso.get().setIndicatorsEnabled(true);
-        Picasso.get().load(SavedDownloads.getItemFromStaticDownloads(position).getLinks().get(0)).into(imageView);
+        Picasso.get().load(SavedDownloads.getItemFromStaticDownloads(position).getLink()).into(imageView);
         PhotoViewAttacher mAttacher = new PhotoViewAttacher(imageView);
 
         Button post_Save = findViewById(R.id.post_Save);

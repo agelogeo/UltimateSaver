@@ -61,7 +61,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder
 
         try {
             Picasso.get().setIndicatorsEnabled(true);
-            Picasso.get().load(SavedDownloads.getItemFromStaticDownloads(i).getPreviews().get(0)).into(downloadViewHolder.photoWallpaper);
+            Picasso.get().load(SavedDownloads.getItemFromStaticDownloads(i).getPreview()).into(downloadViewHolder.photoWallpaper);
             Picasso.get().load(SavedDownloads.getItemFromStaticDownloads(i).getProfile_url()).into(downloadViewHolder.profilePicView);
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,7 +70,10 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder
         downloadViewHolder.save_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SavedDownloads.SaveImage(v.getContext(),position);
+                if(SavedDownloads.getItemFromStaticDownloads(position).isVideo())
+                    SavedDownloads.SaveVideo(v.getContext(),position);
+                else
+                    SavedDownloads.SaveImage(v.getContext(),position);
             }
         });
 

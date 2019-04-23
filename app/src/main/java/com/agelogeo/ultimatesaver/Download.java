@@ -3,29 +3,26 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Download implements Serializable {
-    ArrayList<String> links = new ArrayList<String>();
-    ArrayList<String> previews = new ArrayList<String>();
-    ArrayList<String> file_paths = new ArrayList<String>();
-    ArrayList<Boolean> isVideo = new ArrayList<Boolean>();
+    String link ;
+    String preview ;
+    String file_path ;
+    Boolean isVideo ;
     String username = "username";
     String profile_url;
     long time;
 
     public Download() {
         this.time = System.currentTimeMillis();
-        links = new ArrayList<String>();
-        previews = new ArrayList<String>();
-        file_paths = new ArrayList<String>();
-        isVideo = new ArrayList<Boolean>();
+
     }
 
-    public Download(ArrayList<String> previews,ArrayList<String> links, ArrayList<String> file_paths, String username, String profile_url) {
-        this.links = links;
-        this.file_paths = file_paths;
+    public Download(String preview,String link, String file_path, String username, String profile_url) {
+        this.link = link;
+        this.file_path = file_path;
         this.username = username;
         this.profile_url = profile_url;
         this.time = System.currentTimeMillis();
-        this.previews = previews;
+        this.preview = preview;
     }
 
     public String getProfile_url() {
@@ -37,33 +34,41 @@ public class Download implements Serializable {
     }
 
     public void addOnLinks(String link,Boolean isVideo, String preview){
-        this.links.add(link);
-        this.isVideo.add(isVideo);
-        this.previews.add(preview);
+        this.link=link;
+        this.isVideo=isVideo;
+        this.preview=preview;
     }
 
-    public void addOnPaths(String path){
-        this.file_paths.add(path);
+    public String getLink() {
+        return link;
     }
 
-    public ArrayList<String> getLinks() {
-        return links;
+    public void setLink(String link) {
+        this.link = link;
     }
 
-    public ArrayList<String> getPreviews() {
-        return previews;
+    public String getPreview() {
+        return preview;
     }
 
-    public void setLinks(ArrayList<String> links) {
-        this.links = links;
+    public void setPreview(String preview) {
+        this.preview = preview;
     }
 
-    public ArrayList<String> getFile_paths() {
-        return file_paths;
+    public String getFile_path() {
+        return file_path;
     }
 
-    public void setFile_paths(ArrayList<String> file_paths) {
-        this.file_paths = file_paths;
+    public void setFile_path(String file_path) {
+        this.file_path = file_path;
+    }
+
+    public Boolean isVideo() {
+        return isVideo;
+    }
+
+    public void setVideo(Boolean video) {
+        isVideo = video;
     }
 
     public String getUsername() {
@@ -88,12 +93,6 @@ public class Download implements Serializable {
 
     @Override
     public String toString() {
-        String array = "{";
-
-        for(int i=0;i<links.size();i++){
-            array+=links.get(i)+"  , "+isVideo.get(i)+"\n";
-        }
-
-        return "{"+username+","+profile_url+"}\n{"+array+"\n";
+        return "{"+username+","+profile_url+"}\n{"+link+"  , "+isVideo+"\n"+"\n";
     }
 }
