@@ -64,7 +64,10 @@ public class PostActivity extends AppCompatActivity {
         post_Save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SavedDownloads.SaveImage(PostActivity.this,position);
+                if(SavedDownloads.getItemFromStaticDownloads(position).isVideo)
+                    SavedDownloads.SaveVideo(PostActivity.this,position);
+                else
+                    SavedDownloads.SaveImage(PostActivity.this,position);
             }
         });
 

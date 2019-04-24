@@ -1,42 +1,25 @@
 package com.agelogeo.ultimatesaver.downloadFragment;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.agelogeo.ultimatesaver.Download;
-import com.agelogeo.ultimatesaver.MainActivity;
 import com.agelogeo.ultimatesaver.PostActivity;
 import com.agelogeo.ultimatesaver.R;
 import com.agelogeo.ultimatesaver.SavedDownloads;
 import com.squareup.picasso.Picasso;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-
 
 
 public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder>{
@@ -82,18 +65,33 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DownloadViewHolder
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), PostActivity.class);
                 intent.putExtra("position",position);
+                if(SavedDownloads.getItemFromStaticDownloads(position).isVideo()){
+                    ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                            // the context of the activity
+                            (Activity)v.getContext(),
 
-                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                        // the context of the activity
-                        (Activity)v.getContext(),
+                            // For each shared element, add to this method a new Pair item,
+                            // which contains the reference of the view we are transitioning *from*,
+                            // and the value of the transitionName attribute
 
-                        // For each shared element, add to this method a new Pair item,
-                        // which contains the reference of the view we are transitioning *from*,
-                        // and the value of the transitionName attribute
-                        new Pair<View, String>(v.findViewById(R.id.custom_photoWallpaper),
-                                v.getContext().getString(R.string.transition_string))
-                );
-                ActivityCompat.startActivity(v.getContext(), intent, options.toBundle());
+                            new Pair<View, String>(v.findViewById(R.id.custom_photoWallpaper),
+                                    v.getContext().getString(R.string.transition_string_video))
+                    );
+                    ActivityCompat.startActivity(v.getContext(), intent, options.toBundle());
+                }else{
+                    ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                            // the context of the activity
+                            (Activity)v.getContext(),
+
+                            // For each shared element, add to this method a new Pair item,
+                            // which contains the reference of the view we are transitioning *from*,
+                            // and the value of the transitionName attribute
+
+                            new Pair<View, String>(v.findViewById(R.id.custom_photoWallpaper),
+                                    v.getContext().getString(R.string.transition_string_photo))
+                    );
+                    ActivityCompat.startActivity(v.getContext(), intent, options.toBundle());
+                }
             }
         });
 

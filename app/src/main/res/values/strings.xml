@@ -6,7 +6,8 @@
     <string name="nav_header_subtitle">android@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
-    <string name="transition_string">transition:PHOTO</string>
+    <string name="transition_string_photo">transition:PHOTO</string>
+    <string name="transition_string_video">transition:VIDEO</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
